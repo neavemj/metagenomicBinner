@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 """
 Matt's metagenomic binner using pyqtgraph
-Graphical interface for selecting contigs and checking genome completeness
+Graphical interface module for selecting contigs and checking genome completeness
 
 """
 
@@ -30,7 +30,20 @@ window2 = view.addLabel("You have not selected any points")
 
 # data for plots
 
-mattsArray = np.arange(300)
+AHtCov = open("end11AHt.coverage.csv")
+AHphCov = open("end43AHpf.coverage.csv")
+
+mattsArray = []
+
+for line in AHtCov:
+    try:
+        cols = line.split(',')
+        number = float(cols[1])
+        mattsArray.append(cols[1])
+    except:
+        continue
+
+#mattsArray = np.arange(300)
 
 scatter1 = pg.ScatterPlotItem()
 scatter1.addPoints(mattsArray, mattsArray)
@@ -39,6 +52,7 @@ window1.addItem(scatter1)
 # add region of interest rectangle
 
 roi = pg.RectROI(pos=[10, 10], size=[20, 20])
+roi.addScaleHandle(0,1)
 window1.addItem(roi)
 
 # get points within ROI
