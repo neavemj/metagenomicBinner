@@ -26,7 +26,10 @@ window.setWindowTitle('metagenomicBinner')
 ## create area for graph and add a label to display the statistics
 
 window1 = view.addPlot()
-window2 = view.addLabel("You have not selected any points")
+window1.setDownsampling(ds=3000, mode='subsample')
+window1.setClipToView(clip=True)
+window1.setLabel(axis='left', text='Hello!!')
+#window2 = view.addLabel("You have not selected any points")
 
 # data for plots
 
