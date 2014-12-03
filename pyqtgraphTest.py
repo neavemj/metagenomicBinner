@@ -29,24 +29,24 @@ window1 = view.addPlot()
 window1.setDownsampling(ds=3000, mode='subsample')
 window1.setClipToView(clip=True)
 window1.setLabel(axis='left', text='Hello!!')
-#window2 = view.addLabel("You have not selected any points")
+window2 = view.addLabel("You have not selected any points")
 
 # data for plots
 
-AHtCov = open("end11AHt.coverage.csv")
-AHphCov = open("end43AHpf.coverage.csv")
+# AHtCov = open("end11AHt.coverage.csv")
+# AHphCov = open("end43AHpf.coverage.csv")
+#
+# mattsArray = []
+#
+# for line in AHtCov:
+#     try:
+#         cols = line.split(',')
+#         number = float(cols[1])
+#         mattsArray.append(cols[1])
+#     except:
+#         continue
 
-mattsArray = []
-
-for line in AHtCov:
-    try:
-        cols = line.split(',')
-        number = float(cols[1])
-        mattsArray.append(cols[1])
-    except:
-        continue
-
-#mattsArray = np.arange(300)
+mattsArray = np.arange(300)
 
 scatter1 = pg.ScatterPlotItem()
 scatter1.addPoints(mattsArray, mattsArray)
