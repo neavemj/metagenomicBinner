@@ -78,6 +78,11 @@ for line in AHphCov:
 #TODO: somehow need to get complete set of scaffolds that are in the dictionaries. Might have to make list of dicts from my overal dict
 
 #mattsArray = np.arange(300)
+
+#pyqtgraph.examples.run()
+
+#n = 300
+#pos = np.random.normal(size=(2,n), scale=1e-5)
 #spots = [{'pos': pos[:,i], 'data': 1} for i in range(n)] + [{'pos': [0,0], 'data': 1}]
 
 scatter1 = pg.ScatterPlotItem()
