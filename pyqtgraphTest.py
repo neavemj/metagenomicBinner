@@ -28,7 +28,7 @@ window.setWindowTitle('metagenomicBinner')
 window1 = view.addPlot()
 window1.setDownsampling(ds=3000, mode='subsample')
 window1.setClipToView(clip=True)
-window1.setLabel(axis='left', text='Hello!!')
+window1.setLabels(left='physical coverage', bottom='total coverage')
 window2 = view.addLabel("You have not selected any points")
 
 # data for plots
@@ -85,21 +85,16 @@ for j in phDict:
 print 'covDict length', len(covDict)
 
 
-#TODO: make numpy array containing scatterplot points
 #TODO: subsample data for display
 
 #mattsArray = np.arange(300)
 
 #pyqtgraph.examples.run()
 
-spots = [{'pos': np.log(j), 'data': 1} for j in covDict.itervalues()] + [{'pos': [0,0], 'data': 1}]
+# just added the if statement so not so many points are drawn and it's a bit faster
 
-# spots = []
-#
-# for j in covDict.itervalues():
-#     print j
-#     logj = np.log(j)
-#     spots.append({'pos' : logj, 'data' : 1})
+spots = [{'pos': np.log(j), 'data': 1} for j in covDict.itervalues() if j[0] > 1000] + [{'pos': [0,0], 'data': 1}]
+
 
 scatter1 = pg.ScatterPlotItem()
 scatter1.addPoints(spots=spots)
@@ -124,8 +119,8 @@ def matts_function():
     x_max_bound = x_min_bound + roi.size()[0]
     y_max_bound = y_min_bound + roi.size()[1]
     ## check which points are within these bounds
-    for pts in mattsArray:
-        if pts > x_min_bound and pts < x_max_bound and pts > y_min_bound and pts < y_max_bound:
+    for pts in spots:
+        if pts['pos'][0] > x_min_bound and pts['pos'][0] < x_max_bound and pts['pos'][1] > y_min_bound and pts['pos'][1] < y_max_bound:
             pointCount += 1
     if pts > 0:
         print 'total points selected:', pointCount
