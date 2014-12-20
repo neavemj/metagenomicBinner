@@ -29,7 +29,6 @@ window1 = view.addPlot()
 window1.setDownsampling(ds=3000, mode='subsample')
 window1.setClipToView(clip=True)
 window1.setLabel(axis='left', text='Hello!!')
-window1.setLogMode(x=True, y=True)
 window2 = view.addLabel("You have not selected any points")
 
 # data for plots
@@ -50,7 +49,7 @@ for line in AHtCov:
         cols = line.split(',')
         scaffold = str(cols[0])
         coverage = float(cols[1])
-        tDict[scaffold] = [coverage]
+        tDict[scaffold] = coverage
     except:
         exceptions1 += 1
         continue
@@ -61,7 +60,7 @@ for line in AHphCov:
         cols = line.split(',')
         scaffold = str(cols[0])
         coverage = float(cols[1])
-        phDict[scaffold] = [coverage]
+        phDict[scaffold] = coverage
     except:
         exceptions2 += 1
         continue
@@ -93,12 +92,20 @@ print 'covDict length', len(covDict)
 
 #pyqtgraph.examples.run()
 
-spots = [{'pos': j, 'data': 1} for j in covDict.itervalues()] + [{'pos': [0,0], 'data': 1}]
+spots = [{'pos': np.log(j), 'data': 1} for j in covDict.itervalues()] + [{'pos': [0,0], 'data': 1}]
 
+# spots = []
+#
+# for j in covDict.itervalues():
+#     print j
+#     logj = np.log(j)
+#     spots.append({'pos' : logj, 'data' : 1})
 
 scatter1 = pg.ScatterPlotItem()
 scatter1.addPoints(spots=spots)
-window1.addItem(scatter1, )
+window1.setDownsampling(ds=10000, mode='subsample')
+window1.addItem(scatter1)
+
 
 # add region of interest rectangle
 
