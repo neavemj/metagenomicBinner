@@ -29,6 +29,7 @@ window1 = view.addPlot()
 window1.setDownsampling(ds=3000, mode='subsample')
 window1.setClipToView(clip=True)
 window1.setLabel(axis='left', text='Hello!!')
+window1.setLogMode(x=True, y=True)
 window2 = view.addLabel("You have not selected any points")
 
 # data for plots
@@ -36,13 +37,11 @@ window2 = view.addLabel("You have not selected any points")
 AHtCov = open("end11AHt.coverage.csv")
 AHphCov = open("end43AHpf.coverage.csv")
 
+tDict = {}
+phDict = {}
 covDict = {}
-scaffsFound = 0
 exceptions1 = 0
 exceptions2 = 0
-
-#TODO: make numpy array containing scatterplot points
-#TODO: subsample data for display
 
 # create dictionaries for the coverage values. Key is scaffold name, value is coverage.
 
@@ -51,7 +50,7 @@ for line in AHtCov:
         cols = line.split(',')
         scaffold = str(cols[0])
         coverage = float(cols[1])
-        covDict[scaffold] = [coverage]
+        tDict[scaffold] = [coverage]
     except:
         exceptions1 += 1
         continue
@@ -62,32 +61,44 @@ for line in AHphCov:
         cols = line.split(',')
         scaffold = str(cols[0])
         coverage = float(cols[1])
-        if scaffold in covDict:
-            covDict[scaffold].append(coverage)
-            scaffsFound += 1
-        else:
-            covDict[scaffold] = [0.1, coverage]
+        phDict[scaffold] = [coverage]
     except:
         exceptions2 += 1
         continue
 
+print 'exception counts', exceptions1, exceptions2
 
-# put dictionaries together into an array for plotting, ensuring coverage is for the correct scaffold
+# put dictionaries together into a dict for plotting, ensuring coverage is for the correct scaffold
 # the dictionaries are of unequal length because some scaffs have 0 coverage (and no row) for a particular treatment
 
-#TODO: somehow need to get complete set of scaffolds that are in the dictionaries. Might have to make list of dicts from my overal dict
+for j in tDict:
+    if j in phDict:
+        coverage = [tDict[j], phDict[j]]
+        covDict[j] = coverage
+    else:
+        covDict[j] = [tDict[j], 0.01]
+
+
+for j in phDict:
+    if j not in covDict:
+        covDict[j] = [0.01, phDict[j]]
+
+print 'covDict length', len(covDict)
+
+
+#TODO: make numpy array containing scatterplot points
+#TODO: subsample data for display
 
 #mattsArray = np.arange(300)
 
 #pyqtgraph.examples.run()
 
-#n = 300
-#pos = np.random.normal(size=(2,n), scale=1e-5)
-#spots = [{'pos': pos[:,i], 'data': 1} for i in range(n)] + [{'pos': [0,0], 'data': 1}]
+spots = [{'pos': j, 'data': 1} for j in covDict.itervalues()] + [{'pos': [0,0], 'data': 1}]
+
 
 scatter1 = pg.ScatterPlotItem()
-scatter1.addPoints(spots=covDict)
-window1.addItem(scatter1)
+scatter1.addPoints(spots=spots)
+window1.addItem(scatter1, )
 
 # add region of interest rectangle
 
