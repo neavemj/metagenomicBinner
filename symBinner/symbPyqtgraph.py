@@ -45,7 +45,7 @@ gcDict = symbData.gcData(AHgc)
 
 # use list comprehension to add my data points to a list of dictionaries as required by pyqtgraph
 
-spots = [{'pos': np.log(j), 'data': 1} for j in covDict.itervalues()] + [{'pos': [0,0], 'data': 1}]
+spots = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : 6, 'size' : j['length']} for j in covDict.itervalues()] + [{'pos': [0,0], 'data': 1}]
 
 # just plotting the first 1,000 points to speed things up but the ROI still selects from all points
 
