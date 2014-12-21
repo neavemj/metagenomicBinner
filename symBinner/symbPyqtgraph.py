@@ -42,6 +42,7 @@ covDict = symbData.getCombinedData(AHtCov, AHphCov, AHgc)
 #pyqtgraph.examples.run()
 
 # create a color map gradient for coloring my gc points
+#TODO: note this (gradient coloring) seems to take a while to run for some reason
 
 point = np.array([0.4, 0.5, 0.6])
 color = np.array([[0,255,0,255], [255,255,0,255], [255,0,0,255]], dtype=np.ubyte)
