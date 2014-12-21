@@ -12,6 +12,7 @@ Graphical interface module for selecting contigs and checking genome completenes
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
 import numpy as np
+from symbData import coverageData
 
 ## add gui
 
@@ -31,70 +32,24 @@ window1.setClipToView(clip=True)
 window1.setLabels(left='physical coverage (log)', bottom='total coverage (log)')
 window2 = view.addLabel("You have not selected any points")
 
-# data for plots
+# get data and import using symbData.py module
 
 AHtCov = open("end11AHt.coverage.csv")
 AHphCov = open("end43AHpf.coverage.csv")
 
-tDict = {}
-phDict = {}
-covDict = {}
-
-# create dictionaries for the coverage values. Key is scaffold name, value is coverage.
-
-for line in AHtCov:
-    try:
-        cols = line.split(',')
-        scaffold = str(cols[0])
-        coverage = float(cols[1])
-        tDict[scaffold] = coverage
-    except:
-        continue
-
-
-for line in AHphCov:
-    try:
-        cols = line.split(',')
-        scaffold = str(cols[0])
-        coverage = float(cols[1])
-        phDict[scaffold] = coverage
-    except:
-        continue
-
-
-# put dictionaries together into a dict for plotting, ensuring coverage is for the correct scaffold
-# the dictionaries are of unequal length because some scaffs have 0 coverage (and no row) for a particular treatment
-
-for j in tDict:
-    if j in phDict:
-        coverage = [tDict[j], phDict[j]]
-        covDict[j] = coverage
-    else:
-        covDict[j] = [tDict[j], 0.01]
-
-
-for j in phDict:
-    if j not in covDict:
-        covDict[j] = [0.01, phDict[j]]
-
-print 'covDict length', len(covDict)
-
-
-#TODO: subsample data for display
-
-#mattsArray = np.arange(300)
+covDict = coverageData(AHtCov, AHphCov)
 
 #pyqtgraph.examples.run()
 
-# just added the if statement so not so many points are drawn and it's a bit faster
+# use list comprehension to add my data points to a list of dictionaries as required by pyqtgraph
 
 spots = [{'pos': np.log(j), 'data': 1} for j in covDict.itervalues()] + [{'pos': [0,0], 'data': 1}]
 
+# just plotting the first 1,000 points to speed things up but the ROI still selects from all points
 
 scatter1 = pg.ScatterPlotItem()
 scatter1.addPoints(spots=spots[:1000])
 window1.addItem(scatter1)
-
 
 # add region of interest rectangle
 
