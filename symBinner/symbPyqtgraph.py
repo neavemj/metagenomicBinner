@@ -12,7 +12,7 @@ Graphical interface module for selecting contigs and checking genome completenes
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
 import numpy as np
-from symbData import coverageData
+import symbData
 
 ## add gui
 
@@ -34,10 +34,12 @@ window2 = view.addLabel("You have not selected any points")
 
 # get data and import using symbData.py module
 
-AHtCov = open("end11AHt.coverage.csv")
-AHphCov = open("end43AHpf.coverage.csv")
+AHtCov = open("/Users/neavemj/PycharmProjects/metagenomicBinner/end11AHt.coverage.csv")
+AHphCov = open("/Users/neavemj/PycharmProjects/metagenomicBinner/end43AHpf.coverage.csv")
+AHgc = open("/Users/neavemj/PycharmProjects/metagenomicBinner/end43AHt+pf.gc.tab")
 
-covDict = coverageData(AHtCov, AHphCov)
+covDict = symbData.coverageData(AHtCov, AHphCov)
+gcDict = symbData.gcData(AHgc)
 
 #pyqtgraph.examples.run()
 
@@ -53,7 +55,7 @@ window1.addItem(scatter1)
 
 # add region of interest rectangle
 
-roi = pg.RectROI(pos=[10, 10], size=[20, 20])
+roi = pg.RectROI(pos=[0, 0], size=[2, 2])
 roi.addScaleHandle(0,1)
 window1.addItem(roi)
 
@@ -61,7 +63,9 @@ window1.addItem(roi)
 # first define a function to pull out points from the scatter array
 # function will be called when selection with ROI is finished
 
-def matts_function():
+#TODO: create module to estimate genome coverage, etc.
+
+def roiSelector():
     pointCount = 0
     x_min_bound = roi.pos()[0]
     y_min_bound = roi.pos()[1]
@@ -75,9 +79,11 @@ def matts_function():
         print 'total points selected:', pointCount
         window2.setText('you have selected %s points' % pointCount)
 
+#TODO: make use of sigClicked? To give info about specific point?
+
 # this is a 'signal' in pyqtgraph used to call the function
 
-roi.sigRegionChangeFinished.connect(matts_function)
+roi.sigRegionChangeFinished.connect(roiSelector)
 
 
 # Start Qt event loop unless running in interactive mode.
