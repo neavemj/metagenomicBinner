@@ -10,8 +10,8 @@ def coverageData(cov1, cov2):
 
     #TODO: might have to make coverage 0 if not present, then change log transform to try / except to avoid error
 
-    cov1Dict = {}
-    cov2Dict = {}
+    covDict1 = {}
+    covDict2 = {}
     covDict = {}
     exceptionCov1 = 0
     exceptionCov2 = 0
@@ -24,7 +24,7 @@ def coverageData(cov1, cov2):
             scaffold = str(cols[0])
             coverage = float(cols[1])
             length = float(cols[2])
-            cov1Dict[scaffold] = {'cov' : coverage, 'length' : length}
+            covDict1[scaffold] = {'cov' : coverage, 'length' : length}
         except:
             continue
             exceptionCov1 += 1
@@ -36,7 +36,7 @@ def coverageData(cov1, cov2):
             scaffold = str(cols[0])
             coverage = float(cols[1])
             length = float(cols[2])
-            cov2Dict[scaffold] = {'cov' : coverage, 'length' : length}
+            covDict2[scaffold] = {'cov' : coverage, 'length' : length}
         except:
             continue
             exceptionCov2 += 1
@@ -44,17 +44,17 @@ def coverageData(cov1, cov2):
     # put dictionaries together into a dict for plotting, ensuring coverage is for the correct scaffold
     # the dictionaries are of unequal length because some scaffs have 0 coverage (and no row) for a particular treatment
 
-    for j in cov1Dict:
-        if j in cov2Dict:
-            coverage = [cov1Dict[j]['cov'], cov2Dict[j]['cov']]
-            covDict[j] = coverage
+    for j in covDict1:
+        if j in covDict2:
+            coverage = [covDict1[j]['cov'], covDict2[j]['cov']]
+            covDict[j] = {'cov' : coverage, 'length' : covDict1[j]['length']}
         else:
-            covDict[j] = [cov1Dict[j]['cov'], 0.01]
+            covDict[j] = {'cov' : [covDict1[j]['cov'], 0.01], 'length' : covDict1[j]['length']}
 
 
-    for j in cov2Dict:
+    for j in covDict2:
         if j not in covDict:
-            covDict[j] = [0.01, cov2Dict[j]['cov']]
+            covDict[j] = {'cov' : [0.01, covDict2[j]['cov']], 'length' : covDict2[j]['length']}
 
     print 'covDict1 exceptions', exceptionCov1
     print 'covDict2 exceptions', exceptionCov2
@@ -80,3 +80,19 @@ def gcData(gcFile):
     print 'gcExceptions', gcException
     print 'gcDict length', len(gcDict)
     return gcDict
+
+def getCombinedData(cov1, cov2, gcFile):
+    covData = coverageData(cov1, cov2)
+    gcInfo = gcData(gcFile)
+    combData = {}
+    nonmatches = 0
+
+    for key in gcInfo:
+        if key in covData:
+            combData[key] = {'cov' : covData[key]['cov'], 'length' : covData[key]['length'], 'gc' : gcInfo[key]}
+        else:
+            nonmatches += 1
+
+    print 'nonmatches', nonmatches
+    print 'combData length', len(combData)
+    return combData
