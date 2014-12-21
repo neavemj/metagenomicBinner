@@ -28,7 +28,7 @@ window.setWindowTitle('metagenomicBinner')
 window1 = view.addPlot()
 window1.setDownsampling(ds=3000, mode='subsample')
 window1.setClipToView(clip=True)
-window1.setLabels(left='physical coverage', bottom='total coverage')
+window1.setLabels(left='physical coverage (log)', bottom='total coverage (log)')
 window2 = view.addLabel("You have not selected any points")
 
 # data for plots
@@ -39,8 +39,6 @@ AHphCov = open("end43AHpf.coverage.csv")
 tDict = {}
 phDict = {}
 covDict = {}
-exceptions1 = 0
-exceptions2 = 0
 
 # create dictionaries for the coverage values. Key is scaffold name, value is coverage.
 
@@ -51,7 +49,6 @@ for line in AHtCov:
         coverage = float(cols[1])
         tDict[scaffold] = coverage
     except:
-        exceptions1 += 1
         continue
 
 
@@ -62,10 +59,8 @@ for line in AHphCov:
         coverage = float(cols[1])
         phDict[scaffold] = coverage
     except:
-        exceptions2 += 1
         continue
 
-print 'exception counts', exceptions1, exceptions2
 
 # put dictionaries together into a dict for plotting, ensuring coverage is for the correct scaffold
 # the dictionaries are of unequal length because some scaffs have 0 coverage (and no row) for a particular treatment
@@ -93,12 +88,11 @@ print 'covDict length', len(covDict)
 
 # just added the if statement so not so many points are drawn and it's a bit faster
 
-spots = [{'pos': np.log(j), 'data': 1} for j in covDict.itervalues() if j[0] > 1000] + [{'pos': [0,0], 'data': 1}]
+spots = [{'pos': np.log(j), 'data': 1} for j in covDict.itervalues()] + [{'pos': [0,0], 'data': 1}]
 
 
 scatter1 = pg.ScatterPlotItem()
-scatter1.addPoints(spots=spots)
-window1.setDownsampling(ds=10000, mode='subsample')
+scatter1.addPoints(spots=spots[:1000])
 window1.addItem(scatter1)
 
 
