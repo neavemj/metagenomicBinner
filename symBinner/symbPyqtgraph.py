@@ -27,7 +27,6 @@ window.setWindowTitle('metagenomicBinner')
 # ## create area for graph and add a label to display the statistics
 
 window1 = view.addPlot()
-window1.setDownsampling(ds=3000, mode='subsample')
 window1.setClipToView(clip=True)
 window1.setLabels(left='physical coverage (log)', bottom='total coverage (log)')
 window2 = view.addLabel("You have not selected any points")
@@ -38,19 +37,25 @@ AHtCov = open("/Users/neavemj/PycharmProjects/metagenomicBinner/end11AHt.coverag
 AHphCov = open("/Users/neavemj/PycharmProjects/metagenomicBinner/end43AHpf.coverage.csv")
 AHgc = open("/Users/neavemj/PycharmProjects/metagenomicBinner/end43AHt+pf.gc.tab")
 
-covDict = symbData.coverageData(AHtCov, AHphCov)
-gcDict = symbData.gcData(AHgc)
+covDict = symbData.getCombinedData(AHtCov, AHphCov, AHgc)
 
 #pyqtgraph.examples.run()
 
+# create a color map gradient for coloring my gc points
+
+point = np.array([0.4, 0.5, 0.6])
+color = np.array([[0,255,0,255], [255,255,0,255], [255,0,0,255]], dtype=np.ubyte)
+colmap = pg.ColorMap(point, color)
+
+
 # use list comprehension to add my data points to a list of dictionaries as required by pyqtgraph
 
-spots = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : 6, 'size' : j['length']} for j in covDict.itervalues()] + [{'pos': [0,0], 'data': 1}]
+spots = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : colmap.map(j['gc']/100), 'size' : (j['length']/500), 'pen' : None} for j in covDict.itervalues()]
 
 # just plotting the first 1,000 points to speed things up but the ROI still selects from all points
 
 scatter1 = pg.ScatterPlotItem()
-scatter1.addPoints(spots=spots[:1000])
+scatter1.addPoints(spots=spots[:10000])
 window1.addItem(scatter1)
 
 # add region of interest rectangle
