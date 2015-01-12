@@ -1,6 +1,6 @@
 __author__ = 'neavemj'
 
-# import data module for coverage, gc, kmer and essential gene files
+# import data module for coverage, gc, kmer and essential gene files.
 # Matthew J. Neave 21.12.14
 
 #TODO: import gc content, kmer dist, essential gene stuff - then combine into 1 dict?
