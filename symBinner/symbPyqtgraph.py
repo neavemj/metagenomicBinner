@@ -42,18 +42,21 @@ covDict = symbData.getCombinedData(AHtCov, AHphCov, AHgc)
 #pyqtgraph.examples.run()
 
 # create a color map gradient for coloring my gc points
-#TODO: note this (gradient coloring) seems to take a while to run for some reason
+#TODO: note this (gradient coloring) seems to take a while to run for some reason. Could round to nearest point to reduce number of computations?
+#python -m cProfile -s cumulative symbPyqtgraph.py
+
 
 point = np.array([0.4, 0.5, 0.6])
 color = np.array([[0,255,0,255], [255,255,0,255], [255,0,0,255]], dtype=np.ubyte)
 colmap = pg.ColorMap(point, color)
 
-
 # use list comprehension to add my data points to a list of dictionaries as required by pyqtgraph
 
-spots = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : colmap.map(j['gc']/100), 'size' : (j['length']/500), 'pen' : None} for j in covDict.itervalues()]
+spots = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : colmap.map(round(j['gc']/100, 1)), 'size' : (j['length']/500), 'pen' : None} for j in covDict.itervalues()]
 
 # just plotting the first 1,000 points to speed things up but the ROI still selects from all points
+
+#TODO: draw points according to length. At the moment they are being randomly pulled from a dictionary
 
 scatter1 = pg.ScatterPlotItem()
 scatter1.addPoints(spots=spots[:10000])
