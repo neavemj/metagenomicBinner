@@ -28,7 +28,7 @@ window.setWindowTitle('metagenomicBinner')
 
 window1 = view.addPlot()
 window1.setClipToView(clip=True)
-window1.setLabels(left='physical coverage (log)', bottom='total coverage (log)')
+window1.setLabels(left='coverage 1 (log scale)', bottom='coverage 2 (log scale)')
 window2 = view.addLabel("You have not selected any points")
 
 # get data and import using symbData.py module
