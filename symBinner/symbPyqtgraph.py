@@ -33,9 +33,9 @@ window2 = view.addLabel("You have not selected any points")
 
 # get data and import using symbData.py module
 
-AHtCov = open("/Users/neavemj/PycharmProjects/metagenomicBinner/end11AHt.coverage.csv")
-AHphCov = open("/Users/neavemj/PycharmProjects/metagenomicBinner/end43AHpf.coverage.csv")
-AHgc = open("/Users/neavemj/PycharmProjects/metagenomicBinner/end43AHt+pf.gc.tab")
+AHtCov = open("../end11AHt.coverage.csv")
+AHphCov = open("../end43AHpf.coverage.csv")
+AHgc = open("../end43AHt+pf.gc.tab")
 
 covDict = symbData.getCombinedData(AHtCov, AHphCov, AHgc)
 
@@ -59,7 +59,7 @@ spots = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : colmap.map(round(j['gc']
 #TODO: draw points according to length. At the moment they are being randomly pulled from a dictionary
 
 scatter1 = pg.ScatterPlotItem()
-scatter1.addPoints(spots=spots[:10000])
+scatter1.addPoints(spots=spots[:100000])
 window1.addItem(scatter1)
 
 # add region of interest rectangle
