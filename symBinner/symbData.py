@@ -3,6 +3,8 @@ __author__ = 'neavemj'
 # import data module for coverage, gc, kmer and essential gene files.
 # Matthew J. Neave 21.12.14
 
+import symbHelper
+
 #TODO: import gc content, kmer dist, essential gene stuff - then combine into 1 dict?
 #TODO: currently importing coverage and length from same file - when I write the modules could output results differently
 
@@ -63,7 +65,7 @@ def coverageData(cov1, cov2):
 
 
 def gcData(gcFile):
-
+    "get gc contents into dictionary plus record the max/min gc and return for later use in point colouring"
     gcException = 0
     gcDict = {}
 
@@ -76,14 +78,17 @@ def gcData(gcFile):
         except:
             continue
             gcException += 1
-
+    maxGCvalue = symbHelper.getMaxDictValue(gcDict)
+    minGCvalue = symbHelper.getMinDictValue(gcDict)
+    avgGCvalue = symbHelper.getAverageDictValue(gcDict)
     print 'gcExceptions', gcException
     print 'gcDict length', len(gcDict)
-    return gcDict
+    return gcDict, maxGCvalue, minGCvalue, avgGCvalue
 
 def getCombinedData(cov1, cov2, gcFile):
     covData = coverageData(cov1, cov2)
-    gcInfo = gcData(gcFile)
+    returnedGCdata = gcData(gcFile)
+    gcInfo = returnedGCdata[0]
     combData = {}
     nonmatches = 0
 
@@ -95,4 +100,4 @@ def getCombinedData(cov1, cov2, gcFile):
 
     print 'nonmatches', nonmatches
     print 'combData length', len(combData)
-    return combData
+    return combData, returnedGCdata[1], returnedGCdata[2], returnedGCdata[3]

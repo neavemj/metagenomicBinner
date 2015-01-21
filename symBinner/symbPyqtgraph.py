@@ -12,9 +12,11 @@ Graphical interface module for selecting contigs and checking genome completenes
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
 import numpy as np
-import symbData
+import symbData, symbHelper
 
 ## add gui
+
+#TODO: add a zoom slider
 
 app = QtGui.QApplication([])
 window = QtGui.QMainWindow()
@@ -29,7 +31,7 @@ window.setWindowTitle('metagenomicBinner')
 window1 = view.addPlot()
 window1.setClipToView(clip=True)
 window1.setLabels(left='coverage 1 (log scale)', bottom='coverage 2 (log scale)')
-window2 = view.addLabel("You have not selected any points")
+window2 = view.addLabel("Welcome to symbBinner")
 
 # get data and import using symbData.py module
 
@@ -37,7 +39,11 @@ AHtCov = open("../end11AHt.coverage.csv")
 AHphCov = open("../end43AHpf.coverage.csv")
 AHgc = open("../end43AHt+pf.gc.tab")
 
-covDict = symbData.getCombinedData(AHtCov, AHphCov, AHgc)
+dataResults = symbData.getCombinedData(AHtCov, AHphCov, AHgc)
+covDict = dataResults[0]
+maxGCcontent = dataResults[1]
+minGCcontent = dataResults[2]
+avgGCcontent = dataResults[3]
 
 #pyqtgraph.examples.run()
 
@@ -45,14 +51,16 @@ covDict = symbData.getCombinedData(AHtCov, AHphCov, AHgc)
 #TODO: note this (gradient coloring) seems to take a while to run for some reason. Could round to nearest point to reduce number of computations?
 #python -m cProfile -s cumulative symbPyqtgraph.py
 
+#give points colour according to a range between the calculated max and min gc content
 
-point = np.array([0.4, 0.5, 0.6])
-color = np.array([[0,255,0,255], [255,255,0,255], [255,0,0,255]], dtype=np.ubyte)
+point = np.array([minGCcontent, avgGCcontent, maxGCcontent])
+print 'gc range:', minGCcontent, avgGCcontent, maxGCcontent
+color = np.array([[144,186,109], [150,111,173], [159,88,69]], dtype=np.ubyte)
 colmap = pg.ColorMap(point, color)
 
 # use list comprehension to add my data points to a list of dictionaries as required by pyqtgraph
 
-spots = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : colmap.map(round(j['gc']/100, 1)), 'size' : (j['length']/500), 'pen' : None} for j in covDict.itervalues()]
+spots = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : colmap.map(j['gc']/100), 'size' : (j['length']/500), 'pen' : None} for j in covDict.itervalues()]
 
 # just plotting the first 1,000 points to speed things up but the ROI still selects from all points
 
