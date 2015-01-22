@@ -51,23 +51,24 @@ avgGCcontent = dataResults[3]
 #TODO: note this (gradient coloring) seems to take a while to run for some reason. Could round to nearest point to reduce number of computations?
 #python -m cProfile -s cumulative symbPyqtgraph.py
 
-#give points colour according to a range between the calculated max and min gc content
+#give points 10 colours evenly spaced between the calculated max and min gc content
 
-point = np.array([minGCcontent, avgGCcontent, maxGCcontent])
+point = np.linspace(minGCcontent, maxGCcontent, 10)
 print 'gc range:', minGCcontent, avgGCcontent, maxGCcontent
-color = np.array([[144,186,109], [150,111,173], [159,88,69]], dtype=np.ubyte)
+color = np.array([[231,246,189],[102,6,95],[229,82,7],[74,94,20],[249,149,161],[38,241,240],[103,20,27],[253,203,120],[250,77,137],[248,55,66]], dtype=np.ubyte)
 colmap = pg.ColorMap(point, color)
+
 
 # use list comprehension to add my data points to a list of dictionaries as required by pyqtgraph
 
-spots = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : colmap.map(j['gc']/100), 'size' : (j['length']/500), 'pen' : None} for j in covDict.itervalues()]
+spots = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : colmap.map(j['gc']), 'size' : (j['length']/500), 'pen' : None} for j in covDict.itervalues()]
 
 # just plotting the first 1,000 points to speed things up but the ROI still selects from all points
 
 #TODO: draw points according to length. At the moment they are being randomly pulled from a dictionary
 
 scatter1 = pg.ScatterPlotItem()
-scatter1.addPoints(spots=spots[:100000])
+scatter1.addPoints(spots=spots[:10000])
 window1.addItem(scatter1)
 
 # add region of interest rectangle
