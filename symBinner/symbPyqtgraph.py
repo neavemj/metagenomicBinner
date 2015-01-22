@@ -49,6 +49,8 @@ avgGCcontent = dataResults[3]
 
 # create a color map gradient for coloring my gc points
 #TODO: note this (gradient coloring) seems to take a while to run for some reason. Could round to nearest point to reduce number of computations?
+#TODO: could also add key for gc content colors?
+
 #python -m cProfile -s cumulative symbPyqtgraph.py
 
 #give points 10 colours evenly spaced between the calculated max and min gc content
