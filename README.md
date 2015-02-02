@@ -1,7 +1,7 @@
 # metagenomicBinner
 Genome binner for host-associated bacteria
 
-Takes differential coverage profiles and gc content for genome binning
+Takes differential coverage profiles from separate metagenomes and creates an interactive pyqtgraph environment for binning of individual bacteria genomes.
 
 Screen grab:
 
