@@ -55,6 +55,8 @@ avgGCcontent = dataResults[3]
 
 #give points 10 colours evenly spaced between the calculated max and min gc content
 
+print "*** Generating GC Colour Profiles ***"
+
 point = np.linspace(minGCcontent, maxGCcontent, 10)
 print 'gc range:', minGCcontent, avgGCcontent, maxGCcontent
 color = np.array([[231,246,189],[102,6,95],[229,82,7],[74,94,20],[249,149,161],[38,241,240],[103,20,27],[253,203,120],[250,77,137],[248,55,66]], dtype=np.ubyte)
@@ -63,11 +65,15 @@ colmap = pg.ColorMap(point, color)
 
 # use list comprehension to add my data points to a list of dictionaries as required by pyqtgraph
 
+print "*** Creating Spot Dictionaries ***"
+
 spots = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : colmap.map(j['gc']), 'size' : (j['length']/500), 'pen' : None} for j in covDict.itervalues()]
 
 # just plotting the first 1,000 points to speed things up but the ROI still selects from all points
 
 #TODO: draw points according to length. At the moment they are being randomly pulled from a dictionary
+
+print "*** Adding Spots to Window ***"
 
 scatter1 = pg.ScatterPlotItem()
 scatter1.addPoints(spots=spots[:1000])
