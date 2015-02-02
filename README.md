@@ -5,4 +5,4 @@ Takes differential coverage profiles from separate metagenomes and creates an in
 
 Screen grab:
 
-https://cloud.githubusercontent.com/assets/6932679/6004848/ef3159d8-ab16-11e4-94ec-d599791c4729.png
+![Alt text](https://cloud.githubusercontent.com/assets/6932679/6004848/ef3159d8-ab16-11e4-94ec-d599791c4729.png)
