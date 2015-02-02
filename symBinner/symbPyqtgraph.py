@@ -64,19 +64,26 @@ colmap = pg.ColorMap(point, color)
 
 
 # use list comprehension to add my data points to a list of dictionaries as required by pyqtgraph
+# divided length by 500 because this looked about right but should come up with something better
+# spots to draw is those greater than 1000 (after dividing by 500 in previous step)
 
 print "*** Creating Spot Dictionaries ***"
 
 spots = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : colmap.map(j['gc']), 'size' : (j['length']/500), 'pen' : None} for j in covDict.itervalues()]
 
-# just plotting the first 1,000 points to speed things up but the ROI still selects from all points
+size_to_draw = 1000
+spots_to_draw = [j for j in spots if j['size'] > (size_to_draw / 500)]
+
+print 'selected %d points larger than %d bps to draw' % (len(spots_to_draw), size_to_draw)
+
+# just plotting larger points to speed things up but the ROI still selects from all points
 
 #TODO: draw points according to length. At the moment they are being randomly pulled from a dictionary
 
 print "*** Adding Spots to Window ***"
 
 scatter1 = pg.ScatterPlotItem()
-scatter1.addPoints(spots=spots[:1000])
+scatter1.addPoints(spots=spots_to_draw)
 window1.addItem(scatter1)
 
 # add region of interest rectangle
