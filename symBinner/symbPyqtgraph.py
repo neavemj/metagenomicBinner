@@ -31,7 +31,6 @@ window.setWindowTitle('metagenomicBinner')
 window1 = view.addPlot()
 window1.setClipToView(clip=True)
 window1.setLabels(left='coverage 1 (log scale)', bottom='coverage 2 (log scale)')
-window2 = view.addLabel("Welcome to symbBinner")
 
 # get data and import using symbData.py module
 
@@ -45,6 +44,7 @@ maxGCcontent = dataResults[1]
 minGCcontent = dataResults[2]
 avgGCcontent = dataResults[3]
 
+#import pyqtgraph.examples
 #pyqtgraph.examples.run()
 
 # create a color map gradient for coloring my gc points
@@ -71,14 +71,12 @@ print "*** Creating Spot Dictionaries ***"
 
 spots = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : colmap.map(j['gc']), 'size' : (j['length']/500), 'pen' : None} for j in covDict.itervalues()]
 
-size_to_draw = 1000
+size_to_draw = 2000
 spots_to_draw = [j for j in spots if j['size'] > (size_to_draw / 500)]
 
 print 'selected %d points larger than %d bps to draw' % (len(spots_to_draw), size_to_draw)
 
 # just plotting larger points to speed things up but the ROI still selects from all points
-
-#TODO: draw points according to length. At the moment they are being randomly pulled from a dictionary
 
 print "*** Adding Spots to Window ***"
 
@@ -92,6 +90,9 @@ roi = pg.RectROI(pos=[0, 0], size=[2, 2])
 roi.addScaleHandle(0,1)
 window1.addItem(roi)
 
+window2 = view.addLabel("Welcome to symbBinner")
+contig_length_view = view.addLabel()
+
 # get points within ROI
 # first define a function to pull out points from the scatter array
 # function will be called when selection with ROI is finished
@@ -100,6 +101,7 @@ window1.addItem(roi)
 
 def roiSelector():
     pointCount = 0
+    point_combined_length = 0
     x_min_bound = roi.pos()[0]
     y_min_bound = roi.pos()[1]
     x_max_bound = x_min_bound + roi.size()[0]
@@ -108,9 +110,12 @@ def roiSelector():
     for pts in spots:
         if pts['pos'][0] > x_min_bound and pts['pos'][0] < x_max_bound and pts['pos'][1] > y_min_bound and pts['pos'][1] < y_max_bound:
             pointCount += 1
+            point_combined_length += pts['size']
     if pts > 0:
         print 'total points selected:', pointCount
+        print 'length of contigs (bps):', int(point_combined_length)
         window2.setText('you have selected %s points' % pointCount)
+        contig_length_view.setText('length of contigs (bps):')
 
 #TODO: make use of sigClicked? To give info about specific point?
 
