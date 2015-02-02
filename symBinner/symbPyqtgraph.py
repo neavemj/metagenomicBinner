@@ -72,74 +72,66 @@ window.resize(1000, 800)
 window.show()
 window.setWindowTitle('metagenomicBinner')
 
-#view = pg.GraphicsLayoutWidget()
 cw = QtGui.QWidget()
 window.setCentralWidget(cw)
 
 # ## create area for graph and add a label to display the statistics
-##???
-l = QtGui.QGridLayout()
-cw.setLayout(l)
-l.setSpacing(0)
 
-v = pg.GraphicsView()
-vb = pg.ViewBox()
-vb.setAspectLocked()
-v.setCentralItem(vb)
-l.addWidget(v, 0, 0)
+layout = QtGui.QGridLayout()
+cw.setLayout(layout)
+layout.setSpacing(0)
+
+view = pg.GraphicsView()
+viewBox = pg.ViewBox()
+viewBox.setAspectLocked()
+view.setCentralItem(viewBox)
+layout.addWidget(view, 0, 0)
 
 plot = pg.PlotWidget()
+scatter = pg.ScatterPlotItem()
+scatter.addPoints(spots=spots_to_draw)
 
-w = pg.ScatterPlotItem()
-w.addPoints(spots=spots_to_draw)
+plot.addItem(scatter)
+layout.addWidget(plot, 0, 1)
 
-plot.addItem(w)
-
-l.addWidget(plot, 0, 1)
-
-#window1.setClipToView(clip=True)
 #window1.setLabels(left='coverage 1 (log scale)', bottom='coverage 2 (log scale)')
 
-#scatter1 = pg.ScatterPlotItem()
-#scatter1.addPoints(spots=spots_to_draw)
-#v.addItem(scatter1)
+# add region of interest rectangle
 
-# # add region of interest rectangle
-#
-# roi = pg.RectROI(pos=[0, 0], size=[2, 2])
-# roi.addScaleHandle(0,1)
-# window1.addItem(roi)
-#
+roi = pg.RectROI(pos=[0, 0], size=[2, 2])
+roi.addScaleHandle(0,1)
+plot.addItem(roi)
+
 # window2 = view.addLabel("Welcome to symbBinner")
 # contig_length_view = view.addLabel()
-#
-# # get points within ROI
-# # first define a function to pull out points from the scatter array
-# # function will be called when selection with ROI is finished
-#
-# def roiSelector():
-#     pointCount = 0
-#     point_combined_length = 0
-#     x_min_bound = roi.pos()[0]
-#     y_min_bound = roi.pos()[1]
-#     x_max_bound = x_min_bound + roi.size()[0]
-#     y_max_bound = y_min_bound + roi.size()[1]
-#     ## check which points are within these bounds
-#     for pts in spots:
-#         if pts['pos'][0] > x_min_bound and pts['pos'][0] < x_max_bound and pts['pos'][1] > y_min_bound and pts['pos'][1] < y_max_bound:
-#             pointCount += 1
-#             point_combined_length += pts['size']
-#     if pts > 0:
-#         print 'total points selected:', pointCount
-#         print 'length of contigs (bps):', int(point_combined_length)
-#         window2.setText('you have selected %s points' % pointCount)
-#         contig_length_view.setText('length of contigs (bps):')
-#
-# #TODO: create module to estimate genome coverage, etc.
-#
-# # this is a 'signal' in pyqtgraph used to call the function
-#
-# roi.sigRegionChangeFinished.connect(roiSelector)
+
+# get points within ROI
+# first define a function to pull out points from the scatter array
+# function will be called when selection with ROI is finished
+
+def roiSelector():
+    pointCount = 0
+    point_combined_length = 0
+    x_min_bound = roi.pos()[0]
+    y_min_bound = roi.pos()[1]
+    x_max_bound = x_min_bound + roi.size()[0]
+    y_max_bound = y_min_bound + roi.size()[1]
+    ## check which points are within these bounds
+    for pts in spots:
+        if pts['pos'][0] > x_min_bound and pts['pos'][0] < x_max_bound and pts['pos'][1] > y_min_bound and pts['pos'][1] < y_max_bound:
+            pointCount += 1
+            point_combined_length += pts['size']
+    if pts > 0:
+        print 'total points selected:', pointCount
+        print 'length of contigs (bps):', int(point_combined_length)
+        window2.setText('you have selected %s points' % pointCount)
+        contig_length_view.setText('length of contigs (bps):')
+
+#TODO: create module to estimate genome coverage, etc.
+
+# this is a 'signal' in pyqtgraph used to call the function
+
+roi.sigRegionChangeFinished.connect(roiSelector)
 
 
 # Start Qt event loop unless running in interactive mode.
