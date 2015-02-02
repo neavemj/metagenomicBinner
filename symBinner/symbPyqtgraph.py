@@ -70,7 +70,7 @@ spots = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : colmap.map(j['gc']), 'si
 #TODO: draw points according to length. At the moment they are being randomly pulled from a dictionary
 
 scatter1 = pg.ScatterPlotItem()
-scatter1.addPoints(spots=spots[:10000])
+scatter1.addPoints(spots=spots[:1000])
 window1.addItem(scatter1)
 
 # add region of interest rectangle
