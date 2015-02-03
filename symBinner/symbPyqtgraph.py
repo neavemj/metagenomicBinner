@@ -27,6 +27,9 @@ maxGCcontent = dataResults[1]
 minGCcontent = dataResults[2]
 avgGCcontent = dataResults[3]
 
+## covDict data structure:
+## covDict[scaffold] = {'cov' : , 'length' : , 'gc' : }
+
 #import pyqtgraph.examples
 #pyqtgraph.examples.run()
 
@@ -51,10 +54,9 @@ colmap = pg.ColorMap(point, color)
 
 print "*** Creating Spot Dictionaries ***"
 
-spots = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : colmap.map(j['gc']), 'size' : (j['length']/500), 'pen' : None} for j in covDict.itervalues()]
+size_to_draw = 10000
 
-size_to_draw = 2000
-spots_to_draw = [j for j in spots if j['size'] > (size_to_draw / 500)]
+spots_to_draw = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : colmap.map(j['gc']), 'size' : (j['length']/500), 'pen' : None} for j in covDict.itervalues() if j['length'] > size_to_draw]
 
 print 'selected %d points larger than %d bps to draw' % (len(spots_to_draw), size_to_draw)
 
@@ -117,15 +119,15 @@ def roiSelector():
     x_max_bound = x_min_bound + roi.size()[0]
     y_max_bound = y_min_bound + roi.size()[1]
     ## check which points are within these bounds
-    for pts in spots:
-        if pts['pos'][0] > x_min_bound and pts['pos'][0] < x_max_bound and pts['pos'][1] > y_min_bound and pts['pos'][1] < y_max_bound:
+    for scaffold in covDict:
+        if covDict[scaffold]['cov'][0] > x_min_bound and covDict[scaffold]['cov'][0] < x_max_bound and covDict[scaffold]['cov'][1] > y_min_bound and covDict[scaffold]['cov'][1] < y_max_bound:
             pointCount += 1
-            point_combined_length += pts['size']
-    if pts > 0:
+            point_combined_length += covDict[scaffold]['length']
+    if scaffold > 0:
         print 'total points selected:', pointCount
         print 'length of contigs (bps):', int(point_combined_length)
-        window2.setText('you have selected %s points' % pointCount)
-        contig_length_view.setText('length of contigs (bps):')
+        #window2.setText('you have selected %s points' % pointCount)
+        #contig_length_view.setText('length of contigs (bps):')
 
 #TODO: create module to estimate genome coverage, etc.
 
