@@ -64,37 +64,33 @@ print 'selected %d points larger than %d bps to draw' % (len(spots_to_draw), siz
 
 print "*** Adding Spots to Window ***"
 
+##########################################################################################
 ## add gui
 
 #TODO: add a zoom slider
 
 app = QtGui.QApplication([])
-window = QtGui.QMainWindow()
-window.resize(1000, 800)
-window.show()
-window.setWindowTitle('metagenomicBinner')
 
-cw = QtGui.QWidget()
-window.setCentralWidget(cw)
+## create area for graph and add a label to display the statistics
 
-# ## create area for graph and add a label to display the statistics
-
-layout = QtGui.QGridLayout()
-cw.setLayout(layout)
-layout.setSpacing(0)
+layout = pg.LayoutWidget()
 
 view = pg.GraphicsView()
-viewBox = pg.ViewBox()
-viewBox.setAspectLocked()
-view.setCentralItem(viewBox)
-layout.addWidget(view, 0, 0)
+#viewBox = pg.ViewBox()
+#viewBox.setAspectLocked()
+#view.setCentralItem(viewBox)
+layout.addWidget(view, row=1, col=1)
 
 plot = pg.PlotWidget()
 scatter = pg.ScatterPlotItem()
 scatter.addPoints(spots=spots_to_draw)
 
 plot.addItem(scatter)
-layout.addWidget(plot, 0, 1)
+layout.addWidget(plot, row=1, col=0)
+
+
+layout.resize(1100, 700)
+layout.show()
 
 #window1.setLabels(left='coverage 1 (log scale)', bottom='coverage 2 (log scale)')
 
