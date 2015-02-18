@@ -30,8 +30,6 @@ avgGCcontent = dataResults[3]
 ## covDict data structure:
 ## covDict[scaffold] = {'cov' : , 'length' : , 'gc' : }
 
-#import pyqtgraph.examples
-#pyqtgraph.examples.run()
 
 # create a color map gradient for coloring my gc points
 #TODO: note this (gradient coloring) seems to take a while to run for some reason. Could round to nearest point to reduce number of computations?
@@ -50,7 +48,7 @@ colmap = pg.ColorMap(point, color)
 
 # use list comprehension to add my data points to a list of dictionaries as required by pyqtgraph
 # divided length by 500 because this looked about right but should come up with something better
-# spots to draw is those greater than 1000 (after dividing by 500 in previous step)
+# spots to draw means only contigs bigger than this length will be drawn
 
 print "*** Creating Spot Dictionaries ***"
 
@@ -66,8 +64,13 @@ print "*** Adding Spots to Window ***"
 
 ##########################################################################################
 ## add gui
+##########################################################################################
 
 #TODO: add a zoom slider
+
+
+#import pyqtgraph.examples
+#pyqtgraph.examples.run()
 
 app = QtGui.QApplication([])
 
@@ -79,6 +82,11 @@ view = pg.GraphicsView()
 #viewBox = pg.ViewBox()
 #viewBox.setAspectLocked()
 #view.setCentralItem(viewBox)
+
+#layout.addLabel(text="Hi") #, col=1, colspan=4)
+
+textItem = pg.TextItem(text="hi")
+view.addItem(textItem)
 layout.addWidget(view, row=1, col=1)
 
 plot = pg.PlotWidget()
@@ -87,7 +95,6 @@ scatter.addPoints(spots=spots_to_draw)
 
 plot.addItem(scatter)
 layout.addWidget(plot, row=1, col=0)
-
 
 layout.resize(1100, 700)
 layout.show()
@@ -122,7 +129,7 @@ def roiSelector():
     if scaffold > 0:
         print 'total points selected:', pointCount
         print 'length of contigs (bps):', int(point_combined_length)
-        #window2.setText('you have selected %s points' % pointCount)
+        textItem.setText('you have selected %s points' % pointCount)
         #contig_length_view.setText('length of contigs (bps):')
 
 #TODO: create module to estimate genome coverage, etc.
@@ -130,7 +137,6 @@ def roiSelector():
 # this is a 'signal' in pyqtgraph used to call the function
 
 roi.sigRegionChangeFinished.connect(roiSelector)
-
 
 # Start Qt event loop unless running in interactive mode.
 if __name__ == '__main__':
