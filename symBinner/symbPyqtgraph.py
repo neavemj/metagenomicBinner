@@ -16,6 +16,19 @@ import symbData, symbHelper, symbROIselector
 import argparse
 
 ## TODO: get files from command line using argparse plus column for extractions
+
+parser = argparse.ArgumentParser("Differential coverage of metagenome bins")
+
+parser.add_argument('coverage_files', type = argparse.FileType("r"),
+                    nargs = "+", help = "tab delimited coverage files")
+parser.add_argument('--coverage_col', '-c', type = int,
+                    nargs = "+", help = "indicate coverage column in file (default: 2",
+                    default = 2)
+
+args = parser.parse_args()
+
+print args
+
 # get data and import using symbData.py module
 
 AHtCov = open("../end11AHt.coverage.csv")
