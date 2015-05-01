@@ -13,8 +13,9 @@ from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
 import numpy as np
 import symbData, symbHelper, symbROIselector
+import argparse
 
-
+## TODO: get files from command line using argparse plus column for extractions
 # get data and import using symbData.py module
 
 AHtCov = open("../end11AHt.coverage.csv")
