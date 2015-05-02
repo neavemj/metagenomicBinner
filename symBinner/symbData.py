@@ -76,9 +76,9 @@ def gcData(gcFile):
     print 'gcDict length', len(gcDict)
     return {'gcDict' : gcDict, 'maxGCvalue' : maxGCvalue, 'minGCvalue' : minGCvalue, 'avGCvalue' : avgGCvalue}
 
-def getCombinedData(cov1, cov2, gcFile):
+def getCombinedData(cov1, cov2, gc_content):
     covData = coverageData(cov1, cov2)
-    returnedGCdata = gcData(gcFile)
+    returnedGCdata = gcData(gc_content)
     gcInfo = returnedGCdata['gcDict']
     combData = {}
     nonmatches = 0

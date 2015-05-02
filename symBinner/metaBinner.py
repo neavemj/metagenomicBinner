@@ -15,27 +15,30 @@ import numpy as np
 import symbData, symbHelper, symbROIselector
 import argparse
 
-## TODO: get files from command line using argparse plus column for extractions
+# use argparse to get commmand line arguments for coverage files, gc, etc.
 
-parser = argparse.ArgumentParser("Differential coverage of metagenome bins")
+parser = argparse.ArgumentParser("Metagenome binner")
 
 parser.add_argument('coverage_files', type = argparse.FileType("r"),
                     nargs = "+", help = "tab delimited coverage files")
+parser.add_argument('--gc_file', '-g', type = argparse.FileType("r"),
+                    nargs = "?", help = "tab delimited gc content file")
+parser.add_argument('--min_size_to_draw', '-s', type = int,
+                    nargs = "?", help = "indicate minimum contig length for drawing (default: 1000). Note all contigs are still captured in the selection.",
+                    default = 1000)
 parser.add_argument('--coverage_col', '-c', type = int,
-                    nargs = "+", help = "indicate coverage column in file (default: 2",
+                    nargs = "+", help = "indicate coverage column in file (default: 2)",
                     default = 2)
 
 args = parser.parse_args()
 
-print args
-
 # get data and import using symbData.py module
 
-AHtCov = open("../end11AHt.coverage.csv")
-AHphCov = open("../end43AHpf.coverage.csv")
-AHgc = open("../end43AHt+pf.gc.tab")
+sample1_file = args.coverage_files[0]
+sample2_file = args.coverage_files[1]
+gc_file = args.gc_file
 
-dataResults = symbData.getCombinedData(AHtCov, AHphCov, AHgc)
+dataResults = symbData.getCombinedData(cov1 = sample1_file, cov2 = sample2_file, gc_content = gc_file)
 covDict = dataResults[0]
 maxGCcontent = dataResults[1]
 minGCcontent = dataResults[2]
@@ -46,10 +49,9 @@ avgGCcontent = dataResults[3]
 
 
 # create a color map gradient for coloring my gc points
-#TODO: note this (gradient coloring) seems to take a while to run for some reason. Could round to nearest point to reduce number of computations?
 #TODO: could also add key for gc content colors?
 
-#python -m cProfile -s cumulative symbPyqtgraph.py
+#python -m cProfile -s cumulative metaBinner.py
 
 #give points 10 colours evenly spaced between the calculated max and min gc content
 
@@ -57,7 +59,8 @@ print "*** Generating GC Colour Profiles ***"
 
 point = np.linspace(minGCcontent, maxGCcontent, 10)
 print 'gc range:', minGCcontent, avgGCcontent, maxGCcontent
-color = np.array([[231,246,189],[102,6,95],[229,82,7],[74,94,20],[249,149,161],[38,241,240],[103,20,27],[253,203,120],[250,77,137],[248,55,66]], dtype=np.ubyte)
+color = np.array([[231,246,189],[102,6,95],[229,82,7],[74,94,20],[249,149,161],[38,241,240],
+                  [103,20,27],[253,203,120],[250,77,137],[248,55,66]], dtype=np.ubyte)
 colmap = pg.ColorMap(point, color)
 
 # use list comprehension to add my data points to a list of dictionaries as required by pyqtgraph
@@ -66,9 +69,10 @@ colmap = pg.ColorMap(point, color)
 
 print "*** Creating Spot Dictionaries ***"
 
-size_to_draw = 10000
+size_to_draw = args.min_size_to_draw
 
-spots_to_draw = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : colmap.map(j['gc']), 'size' : (j['length']/500), 'pen' : None} for j in covDict.itervalues() if j['length'] > size_to_draw]
+spots_to_draw = [{'pos': np.log(j['cov']), 'data': 1, 'brush' : colmap.map(j['gc']), 'size' : (j['length']/500),
+                  'pen' : None} for j in covDict.itervalues() if j['length'] > size_to_draw]
 
 print 'selected %d points larger than %d bps to draw' % (len(spots_to_draw), size_to_draw)
 
@@ -99,7 +103,7 @@ view = pg.GraphicsView()
 
 #layout.addLabel(text="Hi") #, col=1, colspan=4)
 
-textItem = pg.TextItem(text="hi")
+textItem = pg.TextItem(text="Select some contigs using the selection box")
 view.addItem(textItem)
 layout.addWidget(view, row=1, col=1)
 
@@ -143,7 +147,7 @@ def roiSelector():
     if scaffold > 0:
         print 'total points selected:', pointCount
         print 'length of contigs (bps):', int(point_combined_length)
-        textItem.setText('you have selected %s points' % pointCount)
+        textItem.setText('you have selected %s contigs' % pointCount)
         #contig_length_view.setText('length of contigs (bps):')
 
 #TODO: create module to estimate genome coverage, etc.
