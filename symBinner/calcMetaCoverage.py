@@ -44,8 +44,8 @@ progAvail("bowtie2", "bedtools", "samtools")
 if args.assembly_file:
     assemb = args.assembly_file[0]
     index_name = assemb.split("/")[-1]
-    print "*** creating bowtie2 index ***"
-    subprocess.call(["bowtie2-build", assemb, index_name])
+    print "\n*** creating bowtie2 index ***"
+    #subprocess.call(["bowtie2-build", assemb, index_name])
 else:
     print "metagenomic assembly file not found"
     sys.exit(1)
@@ -56,11 +56,27 @@ if args.fastq_files:
     threads = args.threads
     fastq1 = args.fastq_files[0]
     fastq2 = args.fastq_files[1]
-    print "*** mapping fastq files to the assembly ***"
-    subprocess.call(["bowtie2", "-p", str(threads), "-x", index_name, "-1", fastq1, "-2", fastq2,
-                     "-S", index_name + ".sam"])
+    print "\n*** mapping fastq files to the assembly ***"
+    #subprocess.call(["bowtie2", "-p", str(threads), "-x", index_name, "-1", fastq1, "-2", fastq2,
+     #                "-S", index_name + ".sam"])
 else:
     print "fastq files not found"
     sys.exit(1)
 
-# use samtools to
+# use samtools to sort and index sam mapping file
+
+print "\n*** converting sam to bam ***"
+input_sam = index_name + ".sam"
+output_bam = index_name + ".bam"
+#subprocess.call(["samtools", "view", "-bS", input_sam, "-o", output_bam])
+#subprocess.call(["samtools", "sort", output_bam, index_name + ".sorted"])
+
+print "\n*** calculating coverage with bedtools ***"
+
+bedtools_coverage_file = open("bed_coverage.txt", "w")
+subprocess.call(["genomeCoverageBed", "-ibam", index_name + ".sorted.bam"],
+                stdout=bedtools_coverage_file)
+bedtools_coverage_file.close()
+
+
+
