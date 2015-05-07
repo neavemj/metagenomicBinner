@@ -17,11 +17,12 @@ import sys
 parser = argparse.ArgumentParser("calculate average coverage of each contig in a metagenomic assembly")
 
 parser.add_argument('fastq_files', type=str,
-                    nargs = 2, help = "forward and reverse fastq files")
+                    nargs=2, help="forward and reverse fastq files")
 parser.add_argument('assembly_file', type = str,
-                    nargs = 1, help = "metagenomic assembly fasta file")
+                    nargs=1, help="metagenomic assembly fasta file")
 parser.add_argument('--threads', '-t', type = int,
-                    nargs = 1, help = "number of threads for bowtie (default: 1)")
+                    nargs="?", help="number of threads for bowtie (default: 1)",
+                    default=1)
 
 args = parser.parse_args()
 
@@ -33,14 +34,33 @@ def progAvail(*args):
             with open(os.devnull, 'w') as quiet:
                 subprocess.call(prog, stdout=quiet, stderr=quiet)
         except OSError:
-            print "couldn't find %s in your path" % prog
+            print "error: couldn't find %s in your path" % prog
             sys.exit(1)
 
-progAvail("bowtie2", "bedtools")
+progAvail("bowtie2", "bedtools", "samtools")
 
 # create bowtie2 reference of the assembly
 
 if args.assembly_file:
-    print "you have a file!"
+    assemb = args.assembly_file[0]
+    index_name = assemb.split("/")[-1]
+    print "*** creating bowtie2 index ***"
+    subprocess.call(["bowtie2-build", assemb, index_name])
 else:
-    print "metagenomic assembly file not given"
+    print "metagenomic assembly file not found"
+    sys.exit(1)
+
+# map fastq files to the assembly
+
+if args.fastq_files:
+    threads = args.threads
+    fastq1 = args.fastq_files[0]
+    fastq2 = args.fastq_files[1]
+    print "*** mapping fastq files to the assembly ***"
+    subprocess.call(["bowtie2", "-p", str(threads), "-x", index_name, "-1", fastq1, "-2", fastq2,
+                     "-S", index_name + ".sam"])
+else:
+    print "fastq files not found"
+    sys.exit(1)
+
+# use samtools to
