@@ -44,12 +44,12 @@ maxGCcontent = dataResults[1]
 minGCcontent = dataResults[2]
 avgGCcontent = dataResults[3]
 
-## covDict data structure:
-## covDict[scaffold] = {'cov' : , 'length' : , 'gc' : }
+# covDict data structure:
+# covDict[scaffold] = {'cov' : , 'length' : , 'gc' : }
 
 
 # create a color map gradient for coloring my gc points
-#TODO: could also add key for gc content colors?
+# TODO: could also add key for gc content colors?
 
 #python -m cProfile -s cumulative metaBinner.py
 
