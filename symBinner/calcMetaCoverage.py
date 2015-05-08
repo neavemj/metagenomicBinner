@@ -12,19 +12,20 @@ import subprocess
 import os
 import sys
 
+
 # use argparse to get fastq files and assembly file
 
 parser = argparse.ArgumentParser("calculate average coverage of each contig in a metagenomic assembly")
-
-parser.add_argument('fastq_files', type=str,
-                    nargs=2, help="forward and reverse fastq files")
-parser.add_argument('assembly_file', type = str,
+parser.add_argument('assembly_file', type=str,
                     nargs=1, help="metagenomic assembly fasta file")
-parser.add_argument('--threads', '-t', type = int,
-                    nargs="?", help="number of threads for bowtie (default: 1)",
-                    default=1)
-
+parser.add_argument('--fastq_files', '-f', type=str,
+                    nargs="+", help="forward and reverse fastq files. "
+                                    "Paired files should be given one after the other,"
+                                    " e.g., sample1_R1.fq, sample1_R2.fq, etc.")
+parser.add_argument('--threads', '-t', type=int,
+                    nargs=1, help="number of threads for bowtie (default: 1)")
 args = parser.parse_args()
+
 
 # check that bowtie2 and bedtools are available in the path
 
@@ -39,44 +40,49 @@ def progAvail(*args):
 
 progAvail("bowtie2", "bedtools", "samtools")
 
+
 # create bowtie2 reference of the assembly
 
 if args.assembly_file:
     assemb = args.assembly_file[0]
-    index_name = assemb.split("/")[-1]
+    index_name = assemb.split("/")[-1].split(".")[0]
     print "\n*** creating bowtie2 index ***"
-    #subprocess.call(["bowtie2-build", assemb, index_name])
+    subprocess.call(["bowtie2-build", assemb, index_name])
 else:
     print "metagenomic assembly file not found"
     sys.exit(1)
 
-# map fastq files to the assembly
 
-if args.fastq_files:
-    threads = args.threads
-    fastq1 = args.fastq_files[0]
-    fastq2 = args.fastq_files[1]
-    print "\n*** mapping fastq files to the assembly ***"
-    #subprocess.call(["bowtie2", "-p", str(threads), "-x", index_name, "-1", fastq1, "-2", fastq2,
-     #                "-S", index_name + ".sam"])
-else:
-    print "fastq files not found"
-    sys.exit(1)
+# map fastq files to the assembly, then calculate coverage with samtools and bedtools
 
-# use samtools to sort and index sam mapping file
+def mapFastqCalcCov(fastq_1, fastq_2, name):
+    threads = args.threads[0]
+    print "\n*** mapping %s files to the assembly ***\n" % name
+    subprocess.call(["bowtie2", "-p", str(threads), "-x", index_name, "-1", fastq_1, "-2",
+                     fastq_2, "-S", name + ".sam"])
 
-print "\n*** converting sam to bam ***"
-input_sam = index_name + ".sam"
-output_bam = index_name + ".bam"
-#subprocess.call(["samtools", "view", "-bS", input_sam, "-o", output_bam])
-#subprocess.call(["samtools", "sort", output_bam, index_name + ".sorted"])
+    # use samtools to sort and index sam mapping file
+    print "\n*** converting sam to bam ***\n"
+    subprocess.call(["samtools", "view", "-bS", name + ".sam", "-o", name + ".bam"])
+    subprocess.call(["samtools", "sort", name + ".bam", name + ".sorted"])
 
-print "\n*** calculating coverage with bedtools ***"
-
-bedtools_coverage_file = open("bed_coverage.txt", "w")
-subprocess.call(["genomeCoverageBed", "-ibam", index_name + ".sorted.bam"],
-                stdout=bedtools_coverage_file)
-bedtools_coverage_file.close()
+    # calculate coverage per contig with bedtools
+    # TODO: convert the bedtools output to ave cov per contig
+    print "\n*** calculating coverage with bedtools ***\n"
+    bedtools_coverage_file = open("bed_coverage.txt", "w")
+    subprocess.call(["genomeCoverageBed", "-ibam", index_name + ".sorted.bam"],
+                    stdout=bedtools_coverage_file)
+    bedtools_coverage_file.close()
 
 
+# loop through each library provided, map reads and calculate coverage
+# the xrange bit means start at 0, end at max number of files, step by 2
+
+library_num = 0
+for i in xrange(0, len(args.fastq_files), 2):
+    fq_1 = args.fastq_files[i]
+    fq_2 = args.fastq_files[i+1]
+    library_num += 1
+    library = index_name + ".library_" + str(library_num)
+    mapFastqCalcCov(fq_1, fq_2, name=library)
 
