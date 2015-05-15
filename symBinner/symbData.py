@@ -1,9 +1,11 @@
+from __future__ import absolute_import
+from __future__ import print_function
 __author__ = 'neavemj'
 
 # import data module for coverage, gc, kmer and essential gene files.
 # Matthew J. Neave 21.12.14
 
-import symbHelper
+from . import symbHelper
 
 #TODO: import gc content, kmer dist, essential gene stuff - then combine into 1 dict?
 #TODO: currently importing coverage and length from same file - when I write the modules could output results differently
@@ -12,7 +14,7 @@ def coverageData(cov1, cov2):
 
     #TODO: might have to make coverage 0 if not present, then change log transform to try / except to avoid error
 
-    print "*** Reading Coverage Data ***"
+    print("*** Reading Coverage Data ***")
     covDict1 = {}
     covDict2 = {}
     covDict = {}
@@ -52,14 +54,14 @@ def coverageData(cov1, cov2):
         if j not in covDict:
             covDict[j] = {'cov' : [0.01, covDict2[j]['cov']], 'length' : covDict2[j]['length']}
 
-    print 'covDict length', len(covDict)
+    print('covDict length', len(covDict))
     return covDict
 
 
 def gcData(gcFile):
     "get gc contents into dictionary plus record the max/min gc and return for later use in point colouring"
 
-    print "*** Reading GC Content ***"
+    print("*** Reading GC Content ***")
     gcDict = {}
 
     next(gcFile)
@@ -73,7 +75,7 @@ def gcData(gcFile):
     minGCvalue = symbHelper.getMinDictValue(gcDict)
     avgGCvalue = symbHelper.getAverageDictValue(gcDict)
 
-    print 'gcDict length', len(gcDict)
+    print('gcDict length', len(gcDict))
     return {'gcDict' : gcDict, 'maxGCvalue' : maxGCvalue, 'minGCvalue' : minGCvalue, 'avGCvalue' : avgGCvalue}
 
 def getCombinedData(cov1, cov2, gc_content):
@@ -89,6 +91,6 @@ def getCombinedData(cov1, cov2, gc_content):
         else:
             nonmatches += 1
 
-    print 'nonmatches', nonmatches
-    print 'combData length', len(combData)
+    print('nonmatches', nonmatches)
+    print('combData length', len(combData))
     return combData, returnedGCdata['maxGCvalue'], returnedGCdata['minGCvalue'], returnedGCdata['avGCvalue']
