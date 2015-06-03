@@ -19,6 +19,7 @@ import argparse
 import six
 
 # use argparse to get commmand line arguments for coverage files, gc, etc.
+# metaBinner.py end11AHt.coverage.csv end43AHpf.coverage.csv -g end43AHt+pf.gc.tab -s 5000
 
 parser = argparse.ArgumentParser("Metagenome binner")
 
