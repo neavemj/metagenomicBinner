@@ -15,7 +15,6 @@ from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
 import numpy as np
 from symBinner import symbData
-from symBinner import symbHelper
 import argparse
 import six
 
@@ -55,8 +54,6 @@ avgGCcontent = dataResults[3]
 # create a color map gradient for coloring my gc points
 # TODO: could also add key for gc content colors?
 
-#python -m cProfile -s cumulative metaBinner.py
-
 #give points 10 colours evenly spaced between the calculated max and min gc content
 
 print("*** Generating GC Colour Profiles ***")
@@ -90,9 +87,9 @@ print("*** Adding Spots to Window ***")
 
 #TODO: add a zoom slider
 
-
 #import pyqtgraph.examples
 #pyqtgraph.examples.run()
+#python -m cProfile -s cumulative metaBinner.py
 
 # start by initializing Qt
 app = QtGui.QApplication([])
@@ -113,7 +110,7 @@ layout.addWidget(button, 0, 0)
 
 plot = pg.PlotWidget()
 scatter = pg.ScatterPlotItem()
-scatter.addPoints(spots=spots_to_draw)
+scatter.addPoints(spots=spots_to_draw, pxMode=True)
 
 plot.addItem(scatter)
 layout.addWidget(plot, 0, 1, 3, 1)
@@ -132,29 +129,31 @@ plot.addItem(roi)
 # first define a function to pull out points from the scatter array
 # function will be called when selection with ROI is finished
 
-# def roiSelector():
-#     pointCount = 0
-#     point_combined_length = 0
-#     x_min_bound = roi.pos()[0]
-#     y_min_bound = roi.pos()[1]
-#     x_max_bound = x_min_bound + roi.size()[0]
-#     y_max_bound = y_min_bound + roi.size()[1]
-#     ## check which points are within these bounds
-#     for scaffold in covDict:
-#         if covDict[scaffold]['cov'][0] > x_min_bound and covDict[scaffold]['cov'][0] < x_max_bound and covDict[scaffold]['cov'][1] > y_min_bound and covDict[scaffold]['cov'][1] < y_max_bound:
-#             pointCount += 1
-#             point_combined_length += covDict[scaffold]['length']
-#     if len(scaffold) > 0:
-#         print('total points selected:', pointCount)
-#         print('length of contigs (bps):', int(point_combined_length))
-#         textItem.setText('you have selected %s contigs' % pointCount)
-#         #contig_length_view.setText('length of contigs (bps):')
-
 def roiSelector():
-    # roiShape = roi.mapToItem(scatter, roi.shape())
-    # selected = [pt for pt in spots_to_draw["pos"] if roiShape.contains(pt)]
-    # print(selected)
-    print('hi')
+    pointCount = 0
+    point_combined_length = 0
+    x_min_bound = roi.pos()[0]
+    y_min_bound = roi.pos()[1]
+    x_max_bound = x_min_bound + roi.size()[0]
+    y_max_bound = y_min_bound + roi.size()[1]
+    ## check which points are within these bounds (need to log because display is log-scale)
+    for scaffold in covDict:
+        if np.log(covDict[scaffold]['cov'][0]) > x_min_bound and \
+                        np.log(covDict[scaffold]['cov'][0]) < x_max_bound and \
+                        np.log(covDict[scaffold]['cov'][1]) > y_min_bound and \
+                        np.log(covDict[scaffold]['cov'][1]) < y_max_bound:
+            pointCount += 1
+            point_combined_length += covDict[scaffold]['length']
+    if len(scaffold) > 0:
+        print('total points selected:', pointCount)
+        print('length of contigs (bps):', int(point_combined_length))
+        textItem.setText('you have selected %s contigs' % pointCount)
+        #contig_length_view.setText('length of contigs (bps):')
+
+# def roiSelector():
+#     roiShape = roi.mapToItem(scatter, roi.shape())
+#     selected = [pt for pt in spots_to_draw["pos"] if roiShape.contains(pt)]
+#     print(selected)
 
 #TODO: create module to estimate genome coverage, etc.
 
