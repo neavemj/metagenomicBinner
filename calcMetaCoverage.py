@@ -25,7 +25,7 @@ parser.add_argument('--fastq_files', '-f', type=str,
                     nargs="+", help="forward and reverse fastq files. "
                                     "Paired files should be given one after the other,"
                                     " e.g., sample1_R1.fq, sample1_R2.fq, etc.")
-parser.add_argument('--threads', '-t', type=int,
+parser.add_argument('--threads', '-t', type=int, default=1,
                     nargs=1, help="number of threads for bowtie (default: 1)")
 args = parser.parse_args()
 
