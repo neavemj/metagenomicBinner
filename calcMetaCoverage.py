@@ -59,7 +59,10 @@ else:
 # map fastq files to the assembly, then calculate coverage with samtools and bedtools
 
 def mapFastqCalcCov(fastq_1, fastq_2, name):
-    threads = args.threads[0]
+    if type(args.threads) is list:          # argparse returns list if args given but int if default value!! weird.
+        threads = args.threads[0]
+    else:
+        threads = args.threads
     print("\n*** mapping %s files to the assembly ***\n" % name)
     subprocess.call(["bowtie2", "-p", str(threads), "-x", index_name, "-1", fastq_1, "-2",
                      fastq_2, "-S", name + ".sam"])
@@ -72,14 +75,14 @@ def mapFastqCalcCov(fastq_1, fastq_2, name):
     # calculate coverage per contig with bedtools
     # TODO: convert the bedtools output to ave cov per contig
     print("\n*** calculating coverage with bedtools ***\n")
-    bedtools_coverage_file = open("bed_coverage.txt", "w")
-    subprocess.call(["genomeCoverageBed", "-ibam", index_name + ".sorted.bam"],
+    bedtools_coverage_file = open(name + ".bed_coverage.txt", "w")
+    subprocess.call(["genomeCoverageBed", "-ibam", name + ".sorted.bam"],
                     stdout=bedtools_coverage_file)
     bedtools_coverage_file.close()
 
 
 # loop through each library provided, map reads and calculate coverage
-# the xrange bit means start at 0, end at max number of files, step by 2
+# the range bit means start at 0, end at max number of files, step by 2
 
 library_num = 0
 for i in range(0, len(args.fastq_files), 2):
