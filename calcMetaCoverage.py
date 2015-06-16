@@ -77,9 +77,19 @@ def mapFastqCalcCov(fastq_1, fastq_2, name):
     print("\n*** calculating coverage with bedtools ***\n")
     output = subprocess.Popen(["genomeCoverageBed", "-ibam", name + ".sorted.bam"], stdout=subprocess.PIPE)
     stdout, stderr = output.communicate()
-    result_dict = csv.DictReader(stdout.decode('ascii').splitlines(), delimiter='\t',
+
+    # create a contig list for later ordering of output
+    contig_list = []
+    for line in stdout.decode('ascii').splitlines():
+        contig = line.split()[0]
+        if contig not in contig_list:
+            contig_list.append(contig)
+
+    # use DictReader to create a dictionary of the bedtools output
+    result_dict = csv.DictReader(stdout.decode('ascii').splitlines(), delimiter="\t",
        fieldnames=['contig', 'depth', 'eqDepth', 'size', 'per_depth'])
 
+    # this calculates the coverage on a per contig basis
     cov_dict = {}
     for result in result_dict:
         contig = result['contig']
@@ -90,12 +100,13 @@ def mapFastqCalcCov(fastq_1, fastq_2, name):
         else:
             cov_dict[contig] = depth * per_depth
 
+    # write using 'contig_list' to maintain contig ordering
     file_output = open(name + ".coverage", "w")
-    for contig_cov in cov_dict:
-        file_output.write(contig_cov)
+    for contig_name in contig_list:
+        file_output.write(contig_name + "\t" + str(cov_dict[contig_name]) + "\n")
 
 # loop through each library provided, map reads and calculate coverage
-# the range bit means start at 0, end at max number of files, step by 2
+# the range bit means start at 0, end at max number of files, step by 2 for paired-end files
 
 library_num = 0
 for i in range(0, len(args.fastq_files), 2):
