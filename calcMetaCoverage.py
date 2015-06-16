@@ -13,6 +13,7 @@ import argparse
 import subprocess
 import os
 import sys
+import csv
 from six.moves import range
 
 
@@ -73,13 +74,25 @@ def mapFastqCalcCov(fastq_1, fastq_2, name):
     subprocess.call(["samtools", "sort", name + ".bam", name + ".sorted"])
 
     # calculate coverage per contig with bedtools
-    # TODO: convert the bedtools output to ave cov per contig
     print("\n*** calculating coverage with bedtools ***\n")
-    bedtools_coverage_file = open(name + ".bed_coverage.txt", "w")
-    subprocess.call(["genomeCoverageBed", "-ibam", name + ".sorted.bam"],
-                    stdout=bedtools_coverage_file)
-    bedtools_coverage_file.close()
+    output = subprocess.Popen(["genomeCoverageBed", "-ibam", name + ".sorted.bam"], stdout=subprocess.PIPE)
+    stdout, stderr = output.communicate()
+    result_dict = csv.DictReader(stdout.decode('ascii').splitlines(), delimiter='\t',
+       fieldnames=['contig', 'depth', 'eqDepth', 'size', 'per_depth'])
 
+    cov_dict = {}
+    for result in result_dict:
+        contig = result['contig']
+        depth = float(result['depth'])
+        per_depth = float(result['per_depth'])
+        if contig in cov_dict:
+            cov_dict[contig] += depth * per_depth
+        else:
+            cov_dict[contig] = depth * per_depth
+
+    file_output = open(name + ".coverage", "w")
+    for contig_cov in cov_dict:
+        file_output.write(contig_cov)
 
 # loop through each library provided, map reads and calculate coverage
 # the range bit means start at 0, end at max number of files, step by 2
