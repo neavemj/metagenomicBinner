@@ -114,3 +114,4 @@ for i in range(0, len(args.fastq_files), 2):
     library = index_name + "." + lib_name
     mapFastqCalcCov(fq_1, fq_2, name=library)
 
+print("Coverages successfully calculated")
