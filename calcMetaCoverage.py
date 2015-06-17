@@ -30,7 +30,6 @@ parser.add_argument('--threads', '-t', type=int, default=1,
                     nargs=1, help="number of threads for bowtie (default: 1)")
 args = parser.parse_args()
 
-
 # check that bowtie2 and bedtools are available in the path
 
 def progAvail(*args):
@@ -108,11 +107,10 @@ def mapFastqCalcCov(fastq_1, fastq_2, name):
 # loop through each library provided, map reads and calculate coverage
 # the range bit means start at 0, end at max number of files, step by 2 for paired-end files
 
-library_num = 0
 for i in range(0, len(args.fastq_files), 2):
     fq_1 = args.fastq_files[i]
     fq_2 = args.fastq_files[i+1]
-    library_num += 1
-    library = index_name + ".library_" + str(library_num)
+    lib_name = fq_1.split("/")[-1].split(".")[0]
+    library = index_name + "." + lib_name
     mapFastqCalcCov(fq_1, fq_2, name=library)
 
